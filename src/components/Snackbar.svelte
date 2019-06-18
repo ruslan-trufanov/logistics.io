@@ -1,11 +1,15 @@
 <script>
-  import { fly } from "svelte/transition";
+  import { fly, fade } from "svelte/transition";
   export let isVisible = true;
   export let message = "This is an error message!";
-  const notifyClass = "error";
-  const handleCloseSnackbar = () => (isVisible = false);
+  export let notifyClass = "error";
 
-  // setTimeout(handleCloseSnackbar, 3000);
+  const handleCloseSnackbar = () => {
+    isVisible = false;
+    clearTimeout(timeout);
+  };
+
+  const timeout = setTimeout(handleCloseSnackbar, 3000);
 </script>
 
 <style>
@@ -45,6 +49,10 @@
     justify-content: center;
     align-items: center;
   }
+
+  .message {
+    margin-right: 50px;
+  }
   .cross:hover {
     opacity: 1;
   }
@@ -65,11 +73,7 @@
   }
 </style>
 
-<div
-  out:fly={{ x: 200 }}
-  in:fly
-  class:snackbard={true}
-  class={notifyClass}>
-  <span>{message}</span>
-  <span on:click={handleCloseSnackbar} class="cross"></span>
+<div in:fly={{ x: 200 }} class:snackbard={true} class={notifyClass}>
+  <span class="message">{message}</span>
+  <span on:click={handleCloseSnackbar} class="cross" />
 </div>

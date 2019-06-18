@@ -1,45 +1,23 @@
 <script>
-  import { navigate, Link } from "svelte-routing";
   import { fly } from "svelte/transition";
+  import { Link } from "svelte-routing";
+  import transliterate from "transliterate";
 
   import TextField from "../components/TextField.svelte";
   import Snackbar from "../components/Snackbar.svelte";
-  import UserIcon from "./UserIcon.svelte";
+  import RegistrationIcon from "./RegistrationIcon.svelte";
 
-  import { userLoginCredential, login } from "../stores/userStore";
-
-  import isNumber from "../helpers/isNumber";
-
-  let username = "";
-  let mobilePhone = "";
+  let username = "",
+    telephone = "",
+    name = "",
+    company = "";
   let isErrorShowed = false;
-  let errorMessage = "";
-  let notifyClass = "";
 
-  const unsubscribe = userLoginCredential.subscribe(value => {
-    username = value.username;
-    mobilePhone = value.mobilePhone;
-  });
+  $: username = transliterate(name)
+    .split(" ")
+    .join("_");
 
-  const onSubmit = () => {
-    if (!isNumber(mobilePhone)) {
-      errorMessage = "Please, please enter a valid phone number";
-      isErrorShowed = true;
-      notifyClass = "warning";
-    } else {
-      try {
-        login({ username, mobilePhone }).then(() => {
-          navigate("/confirmation");
-        });
-      } catch (error) {
-        errorMessage = "Something went wrong";
-        notifyClass = "error";
-        isErrorShowed = true;
-        
-        console.error(error);
-      }
-    }
-  };
+  const onSubmit = () => {};
 </script>
 
 <style>
@@ -51,8 +29,8 @@
     align-items: center;
   }
   .threshold-panel {
-    width: 400px;
-    height: 450px;
+    width: 650px;
+    height: 600px;
     background-color: #ffffff47;
     box-shadow: 0 0 2px rgba(145, 145, 145, 0.2);
     border-radius: 20px;
@@ -61,7 +39,8 @@
     position: relative;
     align-items: center;
   }
-  .user-icon {
+
+  .registration-icon {
     border-radius: 50%;
     background-color: #45a5bfa6;
     width: 75px;
@@ -87,6 +66,7 @@
     margin: 0 auto;
   }
   .action-links {
+    color: #777676;
     display: flex;
     justify-content: space-between;
     width: 75%;
@@ -96,30 +76,29 @@
 
 <div class="container" transition:fly={{ x: 200 }}>
   <div class="threshold-panel">
-    <div class="user-icon">
-      <UserIcon />
+    <div class="registration-icon">
+      <RegistrationIcon />
     </div>
     <div class="form-wrapper">
-      <div class="form-title">Sign In</div>
+      <div class="form-title">Sign Up</div>
       <form on:submit|preventDefault={onSubmit} class="form-data">
+        <TextField required bind:value={name} placeholder="name | surname" />
         <TextField required bind:value={username} placeholder="username" />
+        <TextField bind:value={company} placeholder="company" />
         <TextField
           required
-          bind:value={mobilePhone}
+          bind:value={telephone}
           placeholder="mobile phone"
-          type="mobilePhone" />
-        <TextField value="Sign In" type="submit" />
+          type="telephone" />
+        <TextField value="Sign Up" type="submit" />
       </form>
       <div class="action-links">
-        <Link to="/registration">Sign Up</Link>
-        <Link to="/problems">Have a problem ?</Link>
+        <Link to="/">Sign in</Link>
+        <Link to="/problems">Have a problem?</Link>
       </div>
     </div>
   </div>
   {#if isErrorShowed}
-    <Snackbar
-      {notifyClass}
-      bind:isVisible={isErrorShowed}
-      message={errorMessage} />
+    <Snackbar bind:isVisible={isErrorShowed} />
   {/if}
 </div>

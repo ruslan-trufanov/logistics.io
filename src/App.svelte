@@ -1,6 +1,17 @@
 <script>
-  import { Router, Route } from "svelte-routing";
-  import Login from "./Login/Login.svelte";
+  import { onDestroy } from "svelte";
+  import { get } from 'svelte/store';
+
+  import { isUserLoggedIn } from "./stores/userStore.js";
+  import UserUnLoggedIn from "./routes/UserUnLoggedIn.svelte";
+
+  let userLoggedIn;
+
+  const unsubscribe = isUserLoggedIn.subscribe(value => {
+    userLoggedIn = value;
+  });
+
+  onDestroy(unsubscribe);
 </script>
 
 <style>
@@ -11,12 +22,20 @@
   :global(body) {
     padding: 0;
     overflow: hidden;
-    /* font-family: "Open-Sans-Regular"; */
+    background-image: url("/images/login-background.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  :global(a, a:visited) {
+    color: #777676;
   }
 </style>
 
-<Router>
-  <Route path="/">
-    <Login />
-  </Route>
-</Router>
+{#if !userLoggedIn}
+  <UserUnLoggedIn />
+{/if}
+
+{#if userLoggedIn}
+  <div>2DO implement logged in router</div>
+{/if}

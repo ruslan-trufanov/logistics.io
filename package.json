@@ -14,7 +14,8 @@
   "dependencies": {
     "notistack": "^0.8.6",
     "sirv-cli": "^0.4.4",
-    "svelte-routing": "^1.2.0"
+    "svelte-routing": "^1.2.0",
+    "transliterate": "^1.0.1"
   },
   "scripts": {
     "build": "rollup -c",

@@ -1,7 +1,10 @@
 <script>
+  import isNumber from "../helpers/isNumber";
+
   export let type = "text";
-  export let placeholder;
-  export let value;
+  export let placeholder = "placeholder";
+  export let value = "";
+  export let required = false;
 
   let input;
 
@@ -39,9 +42,10 @@
   class:submit={type === 'submit'}
   class="input"
   {value}
-  {placeholder}
+  placeholder={required ? `${placeholder}*` : placeholder}
   {type}
   bind:this={input}
   on:input={onInput}
   on:focus
-  on:blur />
+  on:blur
+  {required} />
