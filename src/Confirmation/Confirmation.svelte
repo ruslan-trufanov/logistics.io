@@ -34,6 +34,8 @@
         notifyMessage = "Something went wrong";
         notifyClass = "error";
         isSnackBarShowed = true;
+
+        console.error(error)
       }
     }
   };

@@ -21,7 +21,7 @@ export async function registrate({ userName, mobilePhone, company }) {
   userUnLoggedInCredential.set({ userName, mobilePhone, company });
 }
 
-export function confirmation({ code }) {
+export async function confirmation({ code }) {
   isUserLoggedIn.set(!!code);
 } 
 
