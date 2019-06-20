@@ -13,6 +13,7 @@
   import isNumber from "../helpers/isNumber";
 
   let code = "";
+  let loading = false;
 
   let isSnackBarShowed = false;
   let notifyMessage = "";
@@ -27,15 +28,22 @@
       notifyClass = "warning";
     } else {
       try {
-        confirmation({ code }).then(() => {
-          navigate("/");
-        });
+        loading = true;
+        setTimeout(
+          // emulated delay server
+          () =>
+            confirmation({ code }).then(() => {
+              loading = false;
+              navigate("/");
+            }),
+          1000
+        );
       } catch (error) {
         notifyMessage = "Something went wrong";
         notifyClass = "error";
         isSnackBarShowed = true;
-
-        console.error(error)
+        loading = false;
+        console.error(error);
       }
     }
   };
@@ -60,7 +68,7 @@
     position: relative;
     align-items: center;
   }
- .form-wrapper {
+  .form-wrapper {
     flex-direction: column;
   }
   .form-title {
@@ -83,21 +91,29 @@
 
 <div class="container" transition:fly={{ x: 200 }}>
   <div class="threshold-panel">
-    <LoadingBar>
+    <LoadingBar {loading}>
       <ConfirmationIcon />
     </LoadingBar>
     <div class="form-wrapper">
       <div class="form-title">Confirmation</div>
       <form on:submit|preventDefault={onSubmit} class="form-data">
-        <TextField required bind:value={code} placeholder="code" />
-        <TextField value="Enter to platform" type="submit" />
+        <TextField
+          disabled={loading}
+          required
+          bind:value={code}
+          placeholder="code" />
+        <TextField disabled={loading} value="Enter to platform" type="submit" />
       </form>
       <div class="action-link">
         {#if isFromLogin}
-          <Link to="/">Back to Login</Link>
+          <span class:hidden={loading}>
+            <Link to="/">Back to Login</Link>
+          </span>
         {/if}
         {#if isFromRegistration}
-          <Link to="/registration">Back to Registration</Link>
+          <span class:hidden={loading}>
+            <Link to="/registration">Back to Registration</Link>
+          </span>
         {/if}
       </div>
     </div>
