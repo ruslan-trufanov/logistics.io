@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 
 
-export const isUserLoggedIn = writable(false);
+export const isUserLoggedIn = writable(!!localStorage.getItem('isUserLoggedIn'));
 
 export const userUnLoggedInCredential = writable({
   userName: '',
@@ -23,6 +23,7 @@ export async function registrate({ userName, mobilePhone, company }) {
 
 export async function confirmation({ code }) {
   isUserLoggedIn.set(!!code);
+  localStorage.setItem('isUserLoggedIn', !!code);
 } 
 
 

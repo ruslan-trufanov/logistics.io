@@ -1,17 +1,10 @@
 <script>
-  import { onDestroy } from "svelte";
-  import { get } from "svelte/store";
-
   import { isUserLoggedIn } from "./stores/userStore.js";
   import UserUnLoggedIn from "./routes/UserUnLoggedIn.svelte";
+  import UserLoggedIn from "./routes/UserLoggedIn.svelte";
 
-  let userLoggedIn = get(isUserLoggedIn);
-
-  const unsubscribe = isUserLoggedIn.subscribe(value => {
-    userLoggedIn = value;
-  });
-
-  onDestroy(unsubscribe);
+  import Header from "./Header/Header.svelte";
+  import Sidebar from "./Sidebar/Sidebar.svelte";
 </script>
 
 <style>
@@ -34,13 +27,52 @@
   :global(.hidden) {
     opacity: 0;
   }
+
+  :global(.paper) {
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2),
+      0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
+    background-color: #fff;
+    padding: 24px 16px;
+    border-radius: 5px;
+    margin: 5px;
+  }
+
+  .container {
+    max-width: 1680px;
+    margin: 0 auto;
+    height: 100%;
+
+    width: 100%;
+    display: flex;
+    align-items: stretch;
+    align-content: stretch;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .content {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: stretch;
+    align-content: stretch;
+    justify-content: flex-start;
+  }
+  :global(.heading) {
+    color: #9e90b2;
+    font-size: 21px;
+    margin-bottom: 10px;
+  }
 </style>
 
-{#if userLoggedIn}
-  <div>2DO implement logged in router</div>
-{/if}
-
-{#if !userLoggedIn}
+{#if $isUserLoggedIn}
+  <div class="container">
+    <Header />
+    <div class="content">
+      <Sidebar />
+      <UserLoggedIn />
+    </div>
+  </div>
+{:else}
   <UserUnLoggedIn />
 {/if}
-
