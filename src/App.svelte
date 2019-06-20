@@ -36,5 +36,11 @@
   }
 </style>
 
-{userLoggedIn}
-<UserUnLoggedIn {userLoggedIn} />
+{#if userLoggedIn}
+  <div>2DO implement logged in router</div>
+{/if}
+
+{#if !userLoggedIn}
+  <UserUnLoggedIn />
+{/if}
+
