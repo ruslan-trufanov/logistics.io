@@ -1,23 +1,52 @@
 <script>
   import { fly } from "svelte/transition";
-  import { Link } from "svelte-routing";
+  import { get } from "svelte/store";
+  import { Link, navigate } from "svelte-routing";
   import transliterate from "transliterate";
 
+  import { userUnLoggedInCredential, registrate } from "../stores/userStore";
+
+  import LoadingBar from "../components/LoadingBar.svelte";
   import TextField from "../components/TextField.svelte";
   import Snackbar from "../components/Snackbar.svelte";
   import RegistrationIcon from "./RegistrationIcon.svelte";
 
-  let username = "",
-    telephone = "",
-    name = "",
-    company = "";
-  let isErrorShowed = false;
+  import isNumber from "../helpers/isNumber";
 
-  $: username = transliterate(name)
-    .split(" ")
-    .join("_");
+  let { userName, mobilePhone, company } = get(userUnLoggedInCredential);
 
-  const onSubmit = () => {};
+  let isSnackBarShowed = false;
+  let loading = false;
+  let notifyMessage = "";
+  let notifyClass = "";
+
+  const onSubmit = () => {
+    if (!isNumber(mobilePhone)) {
+      notifyMessage = "Please, please enter a valid phone number";
+      isSnackBarShowed = true;
+      notifyClass = "warning";
+    } else {
+      loading = true;
+      try {
+        setTimeout(
+          // emulated delay server
+          () =>
+            registrate({ userName, mobilePhone, company }).then(() => {
+              navigate("/confirmation", {
+                state: { isFromRegistration: true }
+              });
+            }),
+          1000
+        );
+      } catch (error) {
+        notifyMessage = "Something went wrong";
+        notifyClass = "error";
+        isSnackBarShowed = true;
+
+        console.error(error);
+      }
+    }
+  };
 </script>
 
 <style>
@@ -30,25 +59,13 @@
   }
   .threshold-panel {
     width: 650px;
-    height: 600px;
+    height: 550px;
     background-color: #ffffff47;
     box-shadow: 0 0 2px rgba(145, 145, 145, 0.2);
     border-radius: 20px;
     display: flex;
     justify-content: center;
     position: relative;
-    align-items: center;
-  }
-
-  .registration-icon {
-    border-radius: 50%;
-    background-color: #45a5bfa6;
-    width: 75px;
-    height: 75px;
-    position: absolute;
-    top: -37.5px;
-    display: flex;
-    justify-content: center;
     align-items: center;
   }
   .form-wrapper {
@@ -76,29 +93,44 @@
 
 <div class="container" transition:fly={{ x: 200 }}>
   <div class="threshold-panel">
-    <div class="registration-icon">
+    <LoadingBar {loading}>
       <RegistrationIcon />
-    </div>
+    </LoadingBar>
     <div class="form-wrapper">
       <div class="form-title">Sign Up</div>
       <form on:submit|preventDefault={onSubmit} class="form-data">
-        <TextField required bind:value={name} placeholder="name | surname" />
-        <TextField required bind:value={username} placeholder="username" />
-        <TextField bind:value={company} placeholder="company" />
         <TextField
           required
-          bind:value={telephone}
+          disabled={loading}
+          bind:value={userName}
+          placeholder="userName" />
+        <TextField
+          required
+          disabled={loading}
+          bind:value={company}
+          placeholder="company" />
+        <TextField
+          required
+          disabled={loading}
+          bind:value={mobilePhone}
           placeholder="mobile phone"
-          type="telephone" />
-        <TextField value="Sign Up" type="submit" />
+          type="mobilePhone" />
+        <TextField value="Sign Up" type="submit" disabled={loading} />
       </form>
       <div class="action-links">
-        <Link to="/">Sign in</Link>
-        <Link to="/problems">Have a problem?</Link>
+        <span class:hidden={loading}>
+          <Link to="/">Sign in</Link>
+        </span>
+        <span class:hidden={loading}>
+          <Link to="/problems">Have a problem?</Link>
+        </span>
       </div>
     </div>
   </div>
-  {#if isErrorShowed}
-    <Snackbar bind:isVisible={isErrorShowed} />
+  {#if isSnackBarShowed}
+    <Snackbar
+      {notifyClass}
+      bind:isVisible={isSnackBarShowed}
+      message={notifyMessage} />
   {/if}
 </div>

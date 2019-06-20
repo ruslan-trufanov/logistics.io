@@ -6,12 +6,52 @@
   import { Link } from "svelte-routing";
   import { fly } from "svelte/transition";
 
-  let telephone = "";
+  import LoadingBar from "../components/LoadingBar.svelte";
+  import isNumber from "../helpers/isNumber";
+
+  import { sendRequestProblem, registrate } from "../stores/userStore";
+
+  let mobilePhone = "";
   let textareaMessage = "";
+  let loading = false;
 
-  let isErrorShowed = false;
+  let isSnackBarShowed = false;
+  let notifyMessage = "";
+  let notifyClass = "";
 
-  const handleSubmit = () => {};
+  const onSubmit = (event) => {
+    
+    if (!isNumber(mobilePhone)) {
+      notifyMessage = "Please, please enter a valid code number";
+      isSnackBarShowed = true;
+      notifyClass = "warning";
+    } else {
+      try {
+        loading = true;
+        setTimeout(
+          // emulated delay server
+          () =>
+            sendRequestProblem({ mobilePhone, textareaMessage }).then(() => {
+              notifyMessage =
+                "Your request has been registered. We will contact you soon";
+              isSnackBarShowed = true;
+              notifyClass = "success";
+              loading = false;              
+              
+              event.target.reset();
+            }),
+          1000
+        );
+      } catch (error) {
+        notifyMessage = "Something went wrong";
+        notifyClass = "error";
+        isSnackBarShowed = true;
+        loading = false;
+      }
+    }
+  };
+
+  
 </script>
 
 <style>
@@ -31,17 +71,6 @@
     display: flex;
     justify-content: center;
     position: relative;
-    align-items: center;
-  }
-  .user-icon {
-    border-radius: 50%;
-    background-color: #45a5bfa6;
-    width: 75px;
-    height: 75px;
-    position: absolute;
-    top: -37.5px;
-    display: flex;
-    justify-content: center;
     align-items: center;
   }
   .form-wrapper {
@@ -68,23 +97,38 @@
 
 <div class="container" transition:fly={{ x: 200 }}>
   <div class="threshold-panel">
-    <div class="user-icon">
+    <LoadingBar {loading}>
       <ProblemIcon />
-    </div>
+    </LoadingBar>
     <div class="form-wrapper">
       <div class="form-title">Have a problem?</div>
-      <form on:submit|preventDefault={handleSubmit} class="form-data">
-        <TextField required bind:value={telephone} placeholder="mobile phone"type="telephone" />
-        <Textarea bind:message={textareaMessage} placeholder="Enter your problem..."/>
-        <TextField value="Send a problem" type="submit" />
+      <form on:submit|preventDefault={onSubmit} class="form-data">
+        <TextField
+          required
+          disabled={loading}
+          bind:value={mobilePhone}
+          placeholder="mobile phone"
+          type="mobilePhone" />
+        <Textarea
+          disabled={loading}
+          bind:message={textareaMessage}
+          placeholder="Enter your problem..." />
+        <TextField value="Send a problem" disabled={loading} type="submit" />
       </form>
       <div class="action-links">
-        <Link to="/registration">Sign Up</Link>
-        <Link to="/">Sign In?</Link>
+        <span class:hidden={loading}>
+          <Link to="/registration">Sign Up</Link>
+        </span>
+        <span class:hidden={loading}>
+          <Link to="/">Sign In</Link>
+        </span>
       </div>
     </div>
   </div>
-  {#if isErrorShowed}
-    <Snackbar bind:isVisible={isErrorShowed} />
+  {#if isSnackBarShowed}
+    <Snackbar
+      {notifyClass}
+      bind:isVisible={isSnackBarShowed}
+      message={notifyMessage} />
   {/if}
 </div>

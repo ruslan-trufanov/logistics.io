@@ -5,6 +5,7 @@
   export let placeholder = "placeholder";
   export let value = "";
   export let required = false;
+  export let disabled = false;
 
   let input;
 
@@ -36,12 +37,17 @@
   .submit:hover {
     background-color: #186c83;
   }
+
+  .submit:disabled {
+    background-color: rgb(214, 214, 214);
+  }
 </style>
 
 <input
   class:submit={type === 'submit'}
   class="input"
   {value}
+  {disabled}
   placeholder={required ? `${placeholder}*` : placeholder}
   {type}
   bind:this={input}

@@ -3,33 +3,37 @@
   import { fly } from "svelte/transition";
 
   import ConfirmationIcon from "./ConfirmationIcon.svelte";
-  import TextField from "../components/TextField.svelte";
-  import Snackbar from "../components/Snackbar.svelte";
 
-  import { confirmationLogin } from "../stores/userStore";
+  import Snackbar from "../components/Snackbar.svelte";
+  import LoadingBar from "../components/LoadingBar.svelte";
+  import TextField from "../components/TextField.svelte";
+
+  import { confirmation } from "../stores/userStore";
 
   import isNumber from "../helpers/isNumber";
 
   let code = "";
 
-  let isErrorShowed = false;
-  let errorMessage = "";
+  let isSnackBarShowed = false;
+  let notifyMessage = "";
   let notifyClass = "";
+
+  const { isFromLogin, isFromRegistration } = window.history.state;
 
   const onSubmit = () => {
     if (!isNumber(code)) {
-      errorMessage = "Please, please enter a valid code number";
-      isErrorShowed = true;
+      notifyMessage = "Please, please enter a valid code number";
+      isSnackBarShowed = true;
       notifyClass = "warning";
     } else {
       try {
-        confirmationLogin({ code }).then(() => {
+        confirmation({ code }).then(() => {
           navigate("/");
         });
       } catch (error) {
-        errorMessage = "Something went wrong";
+        notifyMessage = "Something went wrong";
         notifyClass = "error";
-        isErrorShowed = true;
+        isSnackBarShowed = true;
       }
     }
   };
@@ -54,18 +58,7 @@
     position: relative;
     align-items: center;
   }
-  .user-icon {
-    border-radius: 50%;
-    background-color: #45a5bfa6;
-    width: 75px;
-    height: 75px;
-    position: absolute;
-    top: -37.5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .form-wrapper {
+ .form-wrapper {
     flex-direction: column;
   }
   .form-title {
@@ -88,9 +81,9 @@
 
 <div class="container" transition:fly={{ x: 200 }}>
   <div class="threshold-panel">
-    <div class="user-icon">
+    <LoadingBar>
       <ConfirmationIcon />
-    </div>
+    </LoadingBar>
     <div class="form-wrapper">
       <div class="form-title">Confirmation</div>
       <form on:submit|preventDefault={onSubmit} class="form-data">
@@ -98,14 +91,19 @@
         <TextField value="Enter to platform" type="submit" />
       </form>
       <div class="action-link">
-        <Link to="/">Back to Login</Link>
+        {#if isFromLogin}
+          <Link to="/">Back to Login</Link>
+        {/if}
+        {#if isFromRegistration}
+          <Link to="/registration">Back to Registration</Link>
+        {/if}
       </div>
     </div>
   </div>
-  {#if isErrorShowed}
+  {#if isSnackBarShowed}
     <Snackbar
       {notifyClass}
-      bind:isVisible={isErrorShowed}
-      message={errorMessage} />
+      bind:isVisible={isSnackBarShowed}
+      message={notifyMessage} />
   {/if}
 </div>

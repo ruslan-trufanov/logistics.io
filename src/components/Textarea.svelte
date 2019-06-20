@@ -1,6 +1,7 @@
 <script>
   export let message = "my message";
   export let placeholder = "my placeholder";
+  export let disabled = false;
 </script>
 
 <style>
@@ -20,4 +21,4 @@
   }
 </style>
 
-<textarea class="textarea" {placeholder} bind:value={message} />
+<textarea class="textarea" {disabled} {placeholder} bind:value={message} />

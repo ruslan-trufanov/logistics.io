@@ -1,11 +1,11 @@
 <script>
   import { onDestroy } from "svelte";
-  import { get } from 'svelte/store';
+  import { get } from "svelte/store";
 
   import { isUserLoggedIn } from "./stores/userStore.js";
   import UserUnLoggedIn from "./routes/UserUnLoggedIn.svelte";
 
-  let userLoggedIn;
+  let userLoggedIn = get(isUserLoggedIn);
 
   const unsubscribe = isUserLoggedIn.subscribe(value => {
     userLoggedIn = value;
@@ -30,12 +30,11 @@
   :global(a, a:visited) {
     color: #777676;
   }
+
+  :global(.hidden) {
+    opacity: 0;
+  }
 </style>
 
-{#if !userLoggedIn}
-  <UserUnLoggedIn />
-{/if}
-
-{#if userLoggedIn}
-  <div>2DO implement logged in router</div>
-{/if}
+{userLoggedIn}
+<UserUnLoggedIn {userLoggedIn} />

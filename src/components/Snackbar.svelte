@@ -1,15 +1,16 @@
 <script>
+  import { onDestroy } from "svelte";
   import { fly, fade } from "svelte/transition";
+  
   export let isVisible = true;
   export let message = "This is an error message!";
-  export let notifyClass = "error";
+  export let notifyClass = "success";
 
-  const handleCloseSnackbar = () => {
-    isVisible = false;
-    clearTimeout(timeout);
-  };
+  const handleCloseSnackbar = () => isVisible = false;
 
   const timeout = setTimeout(handleCloseSnackbar, 3000);
+
+  onDestroy(() => clearTimeout(timeout))
 </script>
 
 <style>

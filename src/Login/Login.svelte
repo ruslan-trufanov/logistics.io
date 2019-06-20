@@ -1,45 +1,59 @@
 <script>
+  import { onMount } from "svelte";
   import { navigate, Link } from "svelte-routing";
-  import { fly } from "svelte/transition";
+  import { fly, fade } from "svelte/transition";
+  import { get } from "svelte/store";
+
+  import { userUnLoggedInCredential, login } from "../stores/userStore";
 
   import TextField from "../components/TextField.svelte";
   import Snackbar from "../components/Snackbar.svelte";
+  import LoadingBar from "../components/LoadingBar.svelte";
+
   import UserIcon from "./UserIcon.svelte";
-
-  import { userLoginCredential, login } from "../stores/userStore";
-
   import isNumber from "../helpers/isNumber";
 
-  let username = "";
-  let mobilePhone = "";
-  let isErrorShowed = false;
-  let errorMessage = "";
+  let { userName, mobilePhone } = get(userUnLoggedInCredential);
+  let isSnackBarShowed = false;
+  let notifyMessage = "";
   let notifyClass = "";
+  let loading = false;
 
-  const unsubscribe = userLoginCredential.subscribe(value => {
-    username = value.username;
-    mobilePhone = value.mobilePhone;
-  });
+  const redirectPage = () => {
+    if (window.location.pathname !== "/") {
+      setTimeout(navigate, 100, "/", { replace: true });
+    }
+  };
 
   const onSubmit = () => {
     if (!isNumber(mobilePhone)) {
-      errorMessage = "Please, please enter a valid phone number";
-      isErrorShowed = true;
+      notifyMessage = "Please, please enter a valid phone number";
+      isSnackBarShowed = true;
       notifyClass = "warning";
     } else {
+      loading = true;
       try {
-        login({ username, mobilePhone }).then(() => {
-          navigate("/confirmation");
-        });
+        setTimeout(
+          // emulated delay server
+          () =>
+            login({ userName, mobilePhone }).then(() => {
+              loading = false;
+              navigate("/confirmation", { state: { isFromLogin: true } });
+            }),
+          1000
+        );
       } catch (error) {
-        errorMessage = "Something went wrong";
+        notifyMessage = "Something went wrong";
         notifyClass = "error";
-        isErrorShowed = true;
-        
+        isSnackBarShowed = true;
+        loading = false;
+
         console.error(error);
       }
     }
   };
+
+  onMount(redirectPage);
 </script>
 
 <style>
@@ -50,6 +64,7 @@
     justify-content: center;
     align-items: center;
   }
+
   .threshold-panel {
     width: 400px;
     height: 450px;
@@ -59,17 +74,6 @@
     display: flex;
     justify-content: center;
     position: relative;
-    align-items: center;
-  }
-  .user-icon {
-    border-radius: 50%;
-    background-color: #45a5bfa6;
-    width: 75px;
-    height: 75px;
-    position: absolute;
-    top: -37.5px;
-    display: flex;
-    justify-content: center;
     align-items: center;
   }
   .form-wrapper {
@@ -96,30 +100,39 @@
 
 <div class="container" transition:fly={{ x: 200 }}>
   <div class="threshold-panel">
-    <div class="user-icon">
+    <LoadingBar {loading}>
       <UserIcon />
-    </div>
+    </LoadingBar>
     <div class="form-wrapper">
       <div class="form-title">Sign In</div>
       <form on:submit|preventDefault={onSubmit} class="form-data">
-        <TextField required bind:value={username} placeholder="username" />
+        <TextField
+          required
+          bind:value={userName}
+          placeholder="userName"
+          disabled={loading} />
         <TextField
           required
           bind:value={mobilePhone}
           placeholder="mobile phone"
-          type="mobilePhone" />
-        <TextField value="Sign In" type="submit" />
+          type="mobilePhone"
+          disabled={loading} />
+        <TextField value="Sign In" type="submit" disabled={loading} />
       </form>
-      <div class="action-links">
-        <Link to="/registration">Sign Up</Link>
-        <Link to="/problems">Have a problem ?</Link>
+      <div class="action-links" out:fade>
+        <span class:hidden={loading}>
+          <Link to="/registration">Sign Up</Link>
+        </span>
+        <span class:hidden={loading}>
+          <Link to="/problems">Have a problem ?</Link>
+        </span>
       </div>
     </div>
   </div>
-  {#if isErrorShowed}
+  {#if isSnackBarShowed}
     <Snackbar
       {notifyClass}
-      bind:isVisible={isErrorShowed}
-      message={errorMessage} />
+      bind:isVisible={isSnackBarShowed}
+      message={notifyMessage} />
   {/if}
 </div>
