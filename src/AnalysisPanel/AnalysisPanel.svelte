@@ -8,8 +8,7 @@
 
 <style>
   .analysis-panel {
-    flex-basis: 75%;
-    max-width: 75%;
+    flex: 1;
     background-color: #ffffff69;
     display: flex;
     flex-direction: column;

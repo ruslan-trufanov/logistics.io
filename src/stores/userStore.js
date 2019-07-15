@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { signUp } from '../lib/httpClient';
 
 
 export const isUserLoggedIn = writable(!!localStorage.getItem('isUserLoggedIn'));
@@ -14,6 +15,7 @@ export async function sendRequestProblem({ mobilePhone, message }) {
 }
 
 export async function login({ userName, mobilePhone }) {
+  await signUp({userName, mobilePhone});
   userUnLoggedInCredential.set({ userName, mobilePhone });
 }
 

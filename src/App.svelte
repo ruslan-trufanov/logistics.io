@@ -18,6 +18,7 @@
     background-image: url("/images/login-background.png");
     background-repeat: no-repeat;
     background-size: cover;
+    font-family: 'Open Sans'
   }
 
   :global(a, a:visited) {
@@ -46,7 +47,6 @@
     display: flex;
     align-items: stretch;
     align-content: stretch;
-    flex-direction: column;
     justify-content: flex-start;
     overflow-y: auto;
     overflow-x: hidden;
@@ -57,6 +57,7 @@
     align-items: stretch;
     align-content: stretch;
     justify-content: flex-start;
+    flex-direction: column;
   }
   :global(.heading) {
     color: #9e90b2;
@@ -67,9 +68,9 @@
 
 {#if $isUserLoggedIn}
   <div class="container">
-    <Header />
+    <Sidebar />
     <div class="content">
-      <Sidebar />
+      <Header />
       <UserLoggedIn />
     </div>
   </div>
