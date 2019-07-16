@@ -15,8 +15,18 @@ export async function sendRequestProblem({ mobilePhone, message }) {
 }
 
 export async function login({ userName, mobilePhone }) {
-  await signUp({userName, mobilePhone});
-  userUnLoggedInCredential.set({ userName, mobilePhone });
+  let result = null;
+  try {
+    result = await signUp({ userName, mobilePhone });
+  } catch (errorMsg) {
+    console.error(errorMsg);
+    throw new Error(errorMsg);
+  }
+  if (result.status === 200) { // for test
+    userUnLoggedInCredential.set({ userName, mobilePhone });
+  }
+  
+  return Promise.resolve(result);
 }
 
 export async function registrate({ userName, mobilePhone, company }) {
@@ -26,6 +36,6 @@ export async function registrate({ userName, mobilePhone, company }) {
 export async function confirmation({ code }) {
   isUserLoggedIn.set(!!code);
   localStorage.setItem('isUserLoggedIn', !!code);
-} 
+}
 
 

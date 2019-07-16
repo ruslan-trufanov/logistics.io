@@ -32,24 +32,17 @@
       notifyClass = "warning";
     } else {
       loading = true;
-      try {
-        setTimeout(
-          // emulated delay server
-          () =>
-            login({ userName, mobilePhone }).then(() => {
-              loading = false;
-              navigate("/confirmation", { state: { isFromLogin: true } });
-            }),
-          1000
-        );
-      } catch (error) {
-        notifyMessage = "Something went wrong";
-        notifyClass = "error";
-        isSnackBarShowed = true;
-        loading = false;
-
-        console.error(error);
-      }
+      login({ userName, mobilePhone })
+        .then(() => {
+          loading = false;
+          navigate("/confirmation", { state: { isFromLogin: true } });
+        })
+        .catch(err => {
+          notifyMessage = "Something went wrong";
+          notifyClass = "error";
+          isSnackBarShowed = true;
+          loading = false;
+        });
     }
   };
 
